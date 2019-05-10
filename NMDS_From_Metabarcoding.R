@@ -1,23 +1,26 @@
 
-
+setwd("~/Downloads")
 ###You need to decide how you would like to graph your data
 ##For example, do you need to square root transform it?
 ##Is your data rarefied?
 ##Make sure you do not have any taxonomy data in this file
 
-OTUMatrix_Original <- read.csv("bact_alldata_taxatable.csv")
+OTUMatrix_Original <- read.csv("py_raw.csv", header = TRUE)
+str(OTUMatrix_Original)
 
+#Remove first column because it is OTU names
+test2 <- OTUMatrix_Original[,-1]
+
+##This could beging with the OTU Matrix from Vegan
 #Create a squareroot transformed matrix
-sqrt_OTUmatrix_bact <-  sqrt(OTUMatrix_Original)
+sqrt_OTUmatrix_bact <-  sqrt(test2)
 
 #now transpose the data so that Samples are Rows not Columns
 OTU_Matrix<-t(sqrt_OTUmatrix_bact)
-
+#str(OTU_Matrix)
 #create the NMS object
 Bact_NMS_data<-metaMDS(OTU_Matrix,distance = "bray", k=2,try=100,autotransform = TRUE,maxit=1000)
-
 #data are square root transformed, and then rescaled ("Wisoncin rescaling")
-
 
 #create vectors with the NMS attributes
 NMS_coordinates<-scores(Bact_NMS_data,display="sites")
@@ -26,7 +29,7 @@ write.csv(Bact_NMS_axes,"Bact_NMS_axes.csv")
 NMS_OTUscores<-scores(Bact_NMS_data,display="species")
 
 ##Load Mapping File
-Mapping_File <- read.csv("bact_alldata_mapfile.csv")
+Mapping_File <- read.csv("py_meta.csv")
 str(Mapping_File)
 attach(Mapping_File)
 vertical = as.factor(Vertposition)
@@ -59,7 +62,8 @@ legend(
 
 dev.off()
 
-
+#plot the stress
+stressplot(Bact_NMS_data)
 
 #now these figure colorful!!! It might be useful to have colorful figures
 png(file="Bact_NMS_color.png", width = 6000, height = 4800, res = 1200)
@@ -70,10 +74,10 @@ plot(for_ploting$NMDS2 ~ for_ploting$NMDS1,
      font=2,
      font.lab=2,
      cex.axis=1,
-     pch = c(0, 1, 2, 5, 4)[as.factor(for_ploting$Vertposition)], cex=.8, 
-     col =c("black","saddlebrown","tan2","green1","green4")[as.factor(for_ploting$Vertposition)],  # different 'pch' types 
+     pch = c(0, 1, 2, 5, 4)[as.factor(Mapping_File$Vertposition)], cex=.8, 
+     col =c("black","saddlebrown","tan2","green1","green4")[as.factor(Mapping_File$Vertposition)],  # different 'pch' types 
      data = for_ploting)
-ordiellipse(Bact_NMS_data, group=for_ploting$Vertposition,kind = "se", 
+ordiellipse(Bact_NMS_data, group=Mapping_File$Vertposition,kind = "se", 
             conf=0.95, lwd=1.9, col =c("black","saddlebrown","tan2","green1","green4"))
 legend(
   x ="bottomright",
@@ -83,9 +87,5 @@ legend(
   cex = .60 # scale the legend to look attractively sized
 )
 
-
 dev.off()
-
-
-
 
