@@ -3,9 +3,6 @@ title: "NMDS Visualization of Metabarcoding Data"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 
 
@@ -108,6 +105,14 @@ legend(
 
 #dev.off()
 
+
+```
+
+
+```{r}
+
+
+adonis(Bact_NMS_axes ~ Vertposition, data=for_ploting, permutations=999)
 
 ```
 
